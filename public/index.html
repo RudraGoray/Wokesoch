@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WS·MUN 1.0 — Official Conference Site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @theme-note { /* Tailwind v4 @theme not available in a static prototype; tokens below are the equivalent */ }
+  :root {
+    --ink: oklch(0.15 0.008 285);
+    --ink-raised: oklch(0.20 0.008 285);
+    --paper: oklch(0.94 0.022 92);
+    --bone: oklch(0.95 0.010 92);
+    --bone-dim: oklch(0.72 0.008 92);
+    --graphite: oklch(0.34 0.010 285);
+    --lime: oklch(0.88 0.21 128);
+    --violet: oklch(0.50 0.24 288);
+    --oxblood: oklch(0.45 0.15 27);
+    --rule-ink:   color-mix(in oklab, var(--bone) 14%, transparent);
+    --rule-paper: color-mix(in oklab, var(--ink) 16%, transparent);
+
+    --text-meta:  0.75rem;
+    --text-body:  1rem;
+    --text-lead:  1.333rem;
+    --text-h3:    1.777rem;
+    --text-h2:    2.369rem;
+    --text-h1:    3.157rem;
+    --text-hero:  clamp(2.6rem, 2rem + 6vw, 6.5rem);
+
+    --line-body:  1.6;
+    --line-lead:  1.5;
+    --line-h3:    1.3;
+    --line-h2:    1.2;
+    --line-h1:    1.08;
+
+    --track-display: -0.02em;
+    --track-label:    0.12em;
+
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px;
+    --sp-8: 32px; --sp-12: 48px; --sp-16: 64px; --sp-24: 96px; --sp-32: 128px;
+  }
+
+  *,*::before,*::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0;
+  }
+  h1,h2,h3,.font-display {
+    font-family: 'Anton', impact, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: var(--track-display);
+    font-weight: 400;
+    margin: 0;
+    text-wrap: balance;
+  }
+  p { max-width: 65ch; margin: 0 0 1.25em; text-wrap: pretty; line-height: var(--line-body); }
+  a {
+    color: inherit;
+    text-decoration-line: underline;
+    text-underline-offset: 0.15em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+    transition: text-decoration-color 180ms ease, color 180ms ease;
+  }
+  a:hover { text-decoration-color: currentColor; }
+  a.nav-link, a.card-link, a.btn { text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .surface-paper :focus-visible { outline-color: var(--violet); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 clamp(20px,5vw,64px); }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .rule { border: none; border-top: 1px solid var(--rule-ink); margin: 0; }
+  .surface-paper .rule { border-top-color: var(--rule-paper); }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .skip-link {
+    position: absolute; left: -9999px; top: 0; background: var(--lime); color: var(--ink);
+    padding: 10px 16px; z-index: 100; font-weight: 600;
+  }
+  .skip-link:focus { left: 16px; top: 16px; }
+
+  /* halftone texture — aria-hidden, ≤0.12 opacity except on the Pass */
+  .halftone {
+    background-image: radial-gradient(color-mix(in oklab, var(--bone) 100%, transparent) 1px, transparent 1px);
+    background-size: 9px 9px;
+    opacity: 0.1;
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .surface-paper .halftone {
+    background-image: radial-gradient(color-mix(in oklab, var(--ink) 100%, transparent) 1px, transparent 1px);
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in oklab, var(--ink) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--rule-ink);
+  }
+  nav .wrap { display: flex; justify-content: space-between; align-items: center; padding: var(--sp-4) clamp(20px,5vw,64px); gap: var(--sp-6); }
+  .nav-logo { font-family: 'Anton', sans-serif; font-size: 1.1rem; letter-spacing: 0.04em; white-space: nowrap; }
+  .nav-logo span { color: var(--lime); }
+  .nav-links { display: flex; gap: var(--sp-6); flex-wrap: wrap; font-size: 0.8rem; text-transform: uppercase; letter-spacing: var(--track-label); font-weight: 500; color: var(--bone-dim); }
+  .nav-links a { cursor: pointer; padding-bottom: 3px; border-bottom: 1px solid transparent; min-height: 44px; display: flex; align-items: center; }
+  .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--bone); border-color: var(--bone-dim); }
+  .nav-links a.cta { color: var(--lime); }
+  .nav-toggle { display: none; }
+  @media (max-width: 780px) {
+    .nav-links { display: none; width: 100%; flex-direction: column; gap: 0; }
+    .nav-links.open { display: flex; }
+    nav .wrap { flex-wrap: wrap; }
+    .nav-toggle { display: block; background: none; border: 1px solid var(--rule-ink); color: var(--bone); padding: 8px 14px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: var(--track-label); }
+  }
+
+  /* SECTIONS */
+  main[data-view] { display: none; }
+  main[data-view].active { display: block; }
+  .section { padding: var(--sp-24) 0; position: relative; }
+  @media (min-width: 900px) { .section { padding: var(--sp-32) 0; } }
+  .section-num { font-family: 'Anton', sans-serif; font-size: var(--text-meta); color: var(--bone-dim); margin-bottom: var(--sp-4); }
+  .surface-paper .section-num { color: var(--graphite); }
+  .section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--sp-12); gap: var(--sp-4); flex-wrap: wrap; }
+  .section-title { font-size: var(--text-h2); line-height: var(--line-h2); }
+  .view-all { font-size: 0.85rem; color: var(--bone-dim); white-space: nowrap; }
+  .view-all:hover { color: var(--lime); }
+  .surface-paper .view-all:hover { color: var(--violet); }
+  .measure { max-width: 65ch; }
+  .lede { font-size: var(--text-lead); line-height: var(--line-lead); color: var(--bone-dim); }
+  .surface-paper .lede { color: var(--graphite); }
+
+  /* HERO */
+  .hero { padding: var(--sp-32) 0 var(--sp-24); border-bottom: 1px solid var(--rule-ink); overflow: hidden; }
+  .kicker { color: var(--lime); font-family: monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: var(--track-label); margin-bottom: var(--sp-4); }
+  .hero h1 { font-size: var(--text-hero); line-height: var(--line-h1); margin-bottom: var(--sp-6); }
+  .hero .lede { max-width: 58ch; margin-bottom: var(--sp-8); }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-6); align-items: center; font-size: 0.9rem; border-top: 1px solid var(--rule-ink); padding-top: var(--sp-6); }
+  .hero-actions { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-top: var(--sp-6); }
+
+  .btn { display: inline-block; padding: 11px 24px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; border: 1px solid transparent; cursor: pointer; min-height: 44px; line-height: 22px; }
+  .btn-primary { background: var(--lime); color: var(--ink); }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-secondary { background: transparent; color: var(--bone); border-color: var(--rule-ink); }
+  .btn-secondary:hover { border-color: var(--bone-dim); }
+  .surface-paper .btn-primary { background: var(--violet); color: var(--paper); }
+  .surface-paper .btn-secondary { color: var(--ink); border-color: var(--rule-paper); }
+
+  /* PASS — the signature element */
+  .pass {
+    --notch: 14px;
+    position: relative;
+    border: 1px solid var(--rule-ink);
+    background: var(--ink-raised);
+    border-radius: 6px;
+    padding: var(--sp-6);
+    -webkit-mask-image:
+      radial-gradient(circle var(--notch) at 0 50%, transparent 98%, black 100%),
+      radial-gradient(circle var(--notch) at 100% 50%, transparent 98%, black 100%);
+    -webkit-mask-composite: source-in, source-in;
+    mask-image:
+      radial-gradient(circle var(--notch) at 0 50%, transparent 98%, black 100%),
+      radial-gradient(circle var(--notch) at 100% 50%, transparent 98%, black 100%);
+    mask-composite: intersect;
+  }
+  .pass .halftone { opacity: 0.12; }
+  .pass-inner { position: relative; z-index: 1; }
+  .pass-head {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px dashed var(--rule-ink); padding-bottom: var(--sp-3); margin-bottom: var(--sp-4);
+    font-family: monospace; font-size: 0.7rem; letter-spacing: var(--track-label);
+    text-transform: uppercase; color: var(--bone-dim);
+  }
+  .stamp {
+    position: absolute; top: var(--sp-6); right: var(--sp-6); transform: rotate(4deg);
+    border: 1px solid var(--lime); padding: 2px 8px; font-size: 10px;
+    font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; color: var(--lime);
+  }
+  .stamp.status-filling { border-color: var(--bone-dim); color: var(--bone-dim); }
+  .stamp.status-closed { border-color: var(--oxblood); color: var(--oxblood); }
+  .surface-paper .stamp { border-color: var(--violet); color: var(--violet); }
+  .pass h3 { font-size: var(--text-h3); line-height: var(--line-h3); margin-bottom: var(--sp-2); max-width: 80%; }
+  .card-link:hover .pass h3 { color: var(--lime); }
+  .pass-agenda { color: var(--bone-dim); font-size: 0.9rem; margin-bottom: var(--sp-8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pass-foot { padding-top: var(--sp-4); border-top: 1px solid var(--rule-ink); display: flex; justify-content: space-between; align-items: flex-end; gap: var(--sp-4); flex-wrap: wrap; }
+  .pass-foot-meta { font-size: var(--text-meta); color: var(--bone-dim); text-transform: uppercase; }
+  .pass-foot-meta div + div { margin-top: 4px; }
+  .barcode { display: flex; gap: 3px; height: 22px; align-items: center; opacity: 0.55; }
+  .barcode div { background: var(--bone); }
+  .surface-paper .barcode div { background: var(--ink); }
+
+  a.card-link { display: block; border-radius: 6px; }
+  .pass-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--sp-6); container-type: inline-size; }
+
+  /* TBA slot */
+  .tba {
+    border: 1px dashed var(--rule-ink); padding: var(--sp-3) var(--sp-4);
+    font-size: var(--text-meta); text-transform: uppercase; letter-spacing: var(--track-label);
+    color: var(--bone-dim); display: inline-block;
+  }
+  .surface-paper .tba { border-color: var(--rule-paper); color: var(--graphite); }
+
+  /* PAPER SURFACE */
+  .surface-paper { background: var(--paper); color: var(--ink); }
+  .surface-paper .lede, .surface-paper p { color: var(--graphite); }
+  .surface-paper h1, .surface-paper h2, .surface-paper h3 { color: var(--ink); }
+  .day-block { border-top: 2px solid var(--ink); padding-top: var(--sp-6); margin-bottom: var(--sp-16); }
+  .day-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--sp-6); flex-wrap: wrap; gap: var(--sp-2); }
+  .day-head h2 { font-size: var(--text-h2); }
+  .day-date { font-family: monospace; font-size: 0.85rem; color: var(--graphite); }
+  .item-row { padding: var(--sp-4) 0; border-top: 1px solid var(--rule-paper); display: flex; flex-direction: column; gap: 4px; }
+  @media (min-width: 700px) { .item-row { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--sp-4); } }
+  .item-time { font-family: monospace; font-size: 0.85rem; font-weight: 600; width: 190px; color: var(--ink); flex-shrink:0; }
+  .item-session { flex: 1; color: var(--ink); }
+  .tz-note { font-size: 0.8rem; color: var(--graphite); margin-bottom: var(--sp-8); }
+
+  /* PEOPLE GRID */
+  .people-tier { margin-bottom: var(--sp-16); }
+  .people-tier-label { font-size: var(--text-meta); text-transform: uppercase; letter-spacing: var(--track-label); color: var(--bone-dim); margin-bottom: var(--sp-6); }
+  .people-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-8) var(--sp-6); }
+  .person { border-top: 1px solid var(--rule-ink); padding-top: var(--sp-3); }
+  .person-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: var(--track-label); color: var(--bone-dim); margin-bottom: 4px; }
+  .person-name { font-size: 1.4rem; }
+  .person-name.tba { font-family: 'Inter', sans-serif; text-transform: uppercase; font-size: var(--text-meta); font-weight: 500; letter-spacing: var(--track-label); border: 1px dashed var(--rule-ink); padding: var(--sp-2) var(--sp-3); display: inline-block; margin-top: 4px; }
+  .eb-group { margin-bottom: var(--sp-12); }
+  .eb-group-title { font-size: var(--text-h3); margin-bottom: var(--sp-6); }
+
+  /* REGISTRATION TIERS */
+  .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: var(--sp-6); margin-bottom: var(--sp-16); }
+  .tier-card { border: 1px solid var(--rule-paper); padding: var(--sp-6); background: color-mix(in oklab, var(--paper) 96%, var(--ink) 4%); }
+  .tier-fee { font-family: 'Anton', sans-serif; font-size: var(--text-h2); margin-bottom: var(--sp-3); }
+  .tier-includes { list-style: none; padding: 0; margin: 0 0 var(--sp-4); font-size: 0.9rem; }
+  .tier-includes li { padding: 6px 0; border-top: 1px solid var(--rule-paper); }
+  .tier-includes li:first-child { border-top: none; }
+  .deadline { color: var(--oxblood); font-weight: 600; font-size: 0.85rem; margin-bottom: var(--sp-4); }
+
+  /* RESOURCES / DOC INDEX */
+  .doc-row { display: flex; justify-content: space-between; align-items: center; padding: var(--sp-4) 0; border-top: 1px solid var(--rule-paper); gap: var(--sp-4); flex-wrap: wrap; }
+  .doc-num { font-family: monospace; color: var(--graphite); width: 32px; flex-shrink: 0; }
+  .doc-title { flex: 1; min-width: 200px; }
+  .doc-meta { font-size: 0.8rem; color: var(--graphite); font-family: monospace; }
+
+  /* ACCORDION */
+  details { border-top: 1px solid var(--rule-paper); padding: var(--sp-4) 0; }
+  details:last-of-type { border-bottom: 1px solid var(--rule-paper); }
+  summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; font-family: monospace; font-size: 1.2rem; }
+  details[open] summary::after { content: '–'; }
+  details p { margin-top: var(--sp-3); }
+
+  footer { border-top: 1px solid var(--rule-ink); background: var(--ink); padding: var(--sp-16) 0; color: var(--bone-dim); font-size: 0.9rem; }
+  .footer-grid { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--sp-8); }
+  .footer-links { display: flex; gap: var(--sp-6); flex-wrap: wrap; text-transform: uppercase; letter-spacing: var(--track-label); font-size: 0.75rem; }
+  .corvus { font-family: monospace; font-size: 0.7rem; border: 1px solid var(--rule-ink); padding: 4px 8px; }
+
+  /* 404 */
+  .plate { text-align: left; padding: var(--sp-32) 0; }
+  .plate .section-num { font-size: 4rem; color: var(--rule-ink); }
+
+  hr.hairline { border: none; border-top: 1px solid var(--rule-ink); margin: var(--sp-16) 0; }
+  .surface-paper hr.hairline { border-top-color: var(--rule-paper); }
+
+  /* REGISTRATION MODAL */
+  .reg-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: color-mix(in oklab, var(--ink) 80%, transparent);
+    align-items: center; justify-content: center; padding: var(--sp-4);
+  }
+  .reg-modal { background: var(--ink-raised); border: 1px solid var(--rule-ink); border-radius: 8px; padding: var(--sp-8); max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .reg-modal h2 { font-size: var(--text-h3); margin-bottom: var(--sp-6); }
+  .reg-field { margin-bottom: var(--sp-4); }
+  .reg-field label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: var(--track-label); color: var(--bone-dim); margin-bottom: 6px; }
+  .reg-field input, .reg-field select, .reg-field textarea {
+    width: 100%; background: var(--ink); color: var(--bone); border: 1px solid var(--rule-ink);
+    padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 0.95rem; border-radius: 4px;
+  }
+  .reg-field textarea { resize: vertical; min-height: 60px; }
+  .reg-actions { display: flex; gap: var(--sp-4); align-items: center; margin-top: var(--sp-6); flex-wrap: wrap; }
+  #reg-feedback { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<nav aria-label="Primary">
+  <div class="wrap">
+    <a href="#" class="nav-logo nav-link" onclick="go('home');return false;">WS·MUN <span>1.0</span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">Menu</button>
+    <div class="nav-links" id="navLinks">
+      <a data-view="about" onclick="go('about');return false;">About</a>
+      <a data-view="schedule" onclick="go('schedule');return false;">Schedule</a>
+      <a data-view="committees" onclick="go('committees');return false;">Committees</a>
+      <a data-view="secretariat" onclick="go('secretariat');return false;">Secretariat</a>
+      <a data-view="executive-board" onclick="go('executive-board');return false;">Executive board</a>
+      <a data-view="resources" onclick="go('resources');return false;">Resources</a>
+      <a data-view="register" class="cta" onclick="go('register');return false;">Register</a>
+    </div>
+  </div>
+</nav>
+
+<div id="main-content">
+
+<!-- HOME -->
+<main data-view="home" class="active">
+  <section class="hero">
+    <div class="halftone" aria-hidden="true"></div>
+    <div class="wrap" style="position:relative;">
+      <div class="kicker">An online conference. Two days. Six committees. No filler.</div>
+      <h1>WS·MUN 1.0</h1>
+      <p class="lede">The inaugural Model UN conference by Woke Soch. Run over Zoom, run to procedure — for delegates who can smell a low-effort conference from the first scroll.</p>
+      <div class="hero-meta tabular">
+        <div><span style="color:var(--bone-dim)">DATES:</span> 26–27 SEPTEMBER 2026</div>
+        <div style="color:var(--rule-ink)">|</div>
+        <div><span style="color:var(--bone-dim)">PLATFORM:</span> ZOOM</div>
+      </div>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary" onclick="go('register');return false;">Register</a>
+        <a href="#" class="btn btn-secondary" onclick="go('committees');return false;">View committees</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="lede measure">Woke Soch runs education, women-empowerment, and climate-action work as a student-led social impact initiative. WS·MUN is that same organisation's first conference: six committees, three executive board members each, one weekend, no delegation fee that isn't spelled out in advance.</p>
+    </div>
+  </section>
+
+  <section class="section" style="border-top:1px solid var(--rule-ink); padding-top: var(--sp-16);">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="section-num">01</div>
+          <h2 class="section-title">The committee slate</h2>
+        </div>
+        <a class="view-all" href="#" onclick="go('committees');return false;">View all committees →</a>
+      </div>
+      <div class="pass-grid" id="pass-grid-home"></div>
+    </div>
+  </section>
+
+  <section class="section surface-paper" style="border-top:1px solid var(--rule-ink);">
+    <div class="wrap">
+      <div class="section-num">02</div>
+      <div class="section-head">
+        <h2 class="section-title">Running order</h2>
+        <a class="view-all" href="#" onclick="go('schedule');return false;">Full schedule →</a>
+      </div>
+      <div id="schedule-preview"></div>
+    </div>
+  </section>
+
+  <section class="section" style="border-top:1px solid var(--rule-ink);">
+    <div class="wrap">
+      <div class="section-num">03</div>
+      <div class="section-head">
+        <h2 class="section-title">Secretariat</h2>
+        <a class="view-all" href="#" onclick="go('secretariat');return false;">Full roster →</a>
+      </div>
+      <p class="measure" style="color:var(--bone-dim);" id="secretariat-preview"></p>
+    </div>
+  </section>
+
+  <section class="section surface-paper" style="border-top:1px solid var(--rule-ink);">
+    <div class="wrap">
+      <div class="section-num">04</div>
+      <h2 class="section-title" style="margin-bottom: var(--sp-6);">Registration</h2>
+      <p class="measure">Fees are non-refundable. Allocations are non-negotiable. Both are final.</p>
+      <span class="tba">Fee schedule — to be announced</span>
+    </div>
+  </section>
+</main>
+
+<!-- ABOUT -->
+<main data-view="about">
+  <section class="section" style="padding-top: var(--sp-24);">
+    <div class="wrap">
+      <div class="section-num">—</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-16);">About</h1>
+
+      <div class="measure">
+        <h2 style="font-size:var(--text-h3); margin-bottom:var(--sp-4);">Woke Soch</h2>
+        <p>A student-led social impact initiative built around three pillars: education, women's empowerment, and climate action. WS·MUN is run by the same team, not a separate events arm — the standards are the same ones the pillar work is held to.</p>
+      </div>
+      <hr class="hairline">
+      <div class="measure">
+        <h2 style="font-size:var(--text-h3); margin-bottom:var(--sp-4);">WS·MUN</h2>
+        <p>An MUN inside a social-impact organisation exists for one reason: to train the argument, not just stage it. Committee agendas here sit closer to the pillar work than a generic circuit topic list — disarmament, sustainable development, human rights, electoral reform, press accountability.</p>
+      </div>
+      <hr class="hairline">
+      <div class="measure">
+        <h2 style="font-size:var(--text-h3); margin-bottom:var(--sp-4);">The theme</h2>
+        <span class="tba">Theme statement — to be announced</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- SCHEDULE -->
+<main data-view="schedule" class="surface-paper">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-num">03</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-4);">Conference programme</h1>
+      <div class="tz-note">All times IST.</div>
+      <div id="schedule-full"></div>
+    </div>
+  </section>
+</main>
+
+<!-- COMMITTEES INDEX -->
+<main data-view="committees">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-num">01</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-12);">The slate</h1>
+      <div class="pass-grid" id="pass-grid-full"></div>
+    </div>
+  </section>
+</main>
+
+<!-- COMMITTEE DETAIL -->
+<main data-view="committee-detail">
+  <section class="section" id="committee-detail-content">
+  </section>
+</main>
+
+<!-- SECRETARIAT -->
+<main data-view="secretariat">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-num">05</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-16);">Secretariat</h1>
+      <div id="secretariat-full"></div>
+    </div>
+  </section>
+</main>
+
+<!-- EXECUTIVE BOARD -->
+<main data-view="executive-board">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-num">06</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-16);">Executive board</h1>
+      <div id="eb-full"></div>
+    </div>
+  </section>
+</main>
+
+<!-- REGISTER -->
+<main data-view="register" class="surface-paper">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-num">07</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-4);">Registration</h1>
+      <p class="lede measure" style="margin-bottom: var(--sp-16);">Fees are non-refundable. Allocations are non-negotiable. Both are final.</p>
+
+      <div class="tier-grid">
+        <div class="tier-card">
+          <h3 style="font-size:var(--text-h3); margin-bottom:var(--sp-3);">Delegate</h3>
+          <div class="tier-fee"><span class="tba">Fee TBA</span></div>
+          <ul class="tier-includes">
+            <li>Individual committee seat</li>
+            <li>Delegate kit (digital)</li>
+            <li>Study guide access</li>
+          </ul>
+          <div class="deadline"><span class="tba" style="color:var(--oxblood); border-color:var(--oxblood);">Deadline TBA</span></div>
+          <a href="#" class="btn btn-primary" onclick="openRegisterModal('delegate');return false;">Register as delegate</a>
+        </div>
+        <div class="tier-card">
+          <h3 style="font-size:var(--text-h3); margin-bottom:var(--sp-3);">Delegation</h3>
+          <div class="tier-fee"><span class="tba">Fee TBA</span></div>
+          <ul class="tier-includes">
+            <li>Bulk seats for one institution</li>
+            <li>Faculty advisor coordination</li>
+            <li>Delegate kits (digital)</li>
+          </ul>
+          <div class="deadline"><span class="tba" style="color:var(--oxblood); border-color:var(--oxblood);">Deadline TBA</span></div>
+          <a href="#" class="btn btn-primary" onclick="openRegisterModal('delegation');return false;">Register a delegation</a>
+        </div>
+        <div class="tier-card">
+          <h3 style="font-size:var(--text-h3); margin-bottom:var(--sp-3);">Executive board</h3>
+          <div class="tier-fee"><span class="tba">Application track</span></div>
+          <ul class="tier-includes">
+            <li>Chair, vice-chair or rapporteur seat</li>
+            <li>Application-based, not first-come</li>
+            <li>Prior EB or high-committee experience preferred</li>
+          </ul>
+          <div class="deadline"><span class="tba" style="color:var(--oxblood); border-color:var(--oxblood);">Deadline TBA</span></div>
+          <a href="#" class="btn btn-secondary" onclick="openRegisterModal('eb');return false;">Apply for EB</a>
+        </div>
+      </div>
+
+      <hr class="hairline">
+
+      <h2 style="font-size:var(--text-h3); margin-bottom:var(--sp-6);">Frequently asked</h2>
+      <div style="max-width:65ch;">
+        <details>
+          <summary>What procedure does this conference run?</summary>
+          <p>UNA-USA procedure. Points of order will be entertained. Personal attacks will not.</p>
+        </details>
+        <details>
+          <summary>What's the dress code on camera?</summary>
+          <p>Western business formal. The camera sees the top half. Your chair will assume the rest.</p>
+        </details>
+        <details>
+          <summary>Are fees refundable?</summary>
+          <p>Fees are non-refundable. Allocations are non-negotiable. Both are final.</p>
+        </details>
+        <details>
+          <summary>What platform does the conference run on?</summary>
+          <p>Zoom. Backgrounds may be virtual. Positions may not.</p>
+        </details>
+        <details>
+          <summary>Where do I find payment details?</summary>
+          <p><span class="tba">Payment information — to be announced</span></p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- RESOURCES -->
+<main data-view="resources" class="surface-paper">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-num">08</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-4);">Delegate resources</h1>
+      <p class="lede measure" style="margin-bottom:var(--sp-12);">Not yet published. The chairs are still arguing about the footnotes.</p>
+
+      <h2 style="font-size:var(--text-h3); margin-bottom:var(--sp-4);">Study guides</h2>
+      <div id="resources-guides"></div>
+
+      <h2 style="font-size:var(--text-h3); margin: var(--sp-12) 0 var(--sp-4);">Portfolio matrices</h2>
+      <div id="resources-matrices"></div>
+
+      <h2 style="font-size:var(--text-h3); margin: var(--sp-12) 0 var(--sp-4);">General documents</h2>
+      <div class="doc-row"><div class="doc-num">—</div><div class="doc-title">Rules of procedure</div><div class="doc-meta"><span class="tba">Pending</span></div></div>
+      <div class="doc-row"><div class="doc-num">—</div><div class="doc-title">Position paper guide</div><div class="doc-meta"><span class="tba">Pending</span></div></div>
+      <div class="doc-row"><div class="doc-num">—</div><div class="doc-title">Dress code</div><div class="doc-meta">Western business formal</div></div>
+    </div>
+  </section>
+</main>
+
+<!-- 404 -->
+<main data-view="notfound">
+  <section class="plate">
+    <div class="wrap">
+      <div class="section-num">404</div>
+      <h1 class="section-title" style="font-size:var(--text-h1); margin-bottom: var(--sp-6);">This page has been ruled out of order.</h1>
+      <a href="#" class="btn btn-primary" onclick="go('home');return false;">Return to the floor</a>
+    </div>
+  </section>
+</main>
+
+</div>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <div class="font-display" style="font-size:1.3rem; color:var(--bone); margin-bottom:4px;">WOKE SOCH · WS·MUN 1.0</div>
+      <div class="tabular" style="font-size:0.75rem;">26–27 SEPTEMBER 2026</div>
+    </div>
+    <div class="footer-links">
+      <span class="tba" style="font-size:0.7rem;">Instagram — TBA</span>
+      <span class="tba" style="font-size:0.7rem;">LinkedIn — TBA</span>
+      <span class="tba" style="font-size:0.7rem;">Email — TBA</span>
+      <span class="tba" style="font-size:0.7rem;">WhatsApp — TBA</span>
+    </div>
+    <div class="corvus" aria-hidden="true">CORVUS · WS·MUN</div>
+  </div>
+</footer>
+
+<div class="reg-modal-overlay" id="reg-modal" role="dialog" aria-modal="true" aria-labelledby="reg-tier-label">
+  <div class="reg-modal">
+    <h2 id="reg-tier-label">Registration</h2>
+    <form id="reg-form">
+      <input type="hidden" id="reg-tier" name="tier">
+      <div class="reg-field">
+        <label for="reg-fullname">Full name</label>
+        <input type="text" id="reg-fullname" name="fullName" required>
+      </div>
+      <div class="reg-field">
+        <label for="reg-email">Email</label>
+        <input type="email" id="reg-email" name="email" required>
+      </div>
+      <div class="reg-field">
+        <label for="reg-phone">Phone</label>
+        <input type="tel" id="reg-phone" name="phone" required>
+      </div>
+      <div class="reg-field" id="reg-committee-field">
+        <label for="reg-committee">Preferred committee</label>
+        <select id="reg-committee" name="committeePreference"></select>
+      </div>
+      <div class="reg-field" id="reg-institution-field" style="display:none;">
+        <label for="reg-institution">Institution</label>
+        <input type="text" id="reg-institution" name="institution">
+      </div>
+      <div class="reg-field" id="reg-delsize-field" style="display:none;">
+        <label for="reg-delsize">Delegation size</label>
+        <input type="number" id="reg-delsize" name="delegationSize" min="1">
+      </div>
+      <div class="reg-field">
+        <label for="reg-notes">Notes (optional)</label>
+        <textarea id="reg-notes" name="notes"></textarea>
+      </div>
+      <div class="reg-actions">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary" onclick="closeRegisterModal()">Cancel</button>
+        <span id="reg-feedback"></span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ---- content now comes from the backend API instead of being hardcoded ----
+const API_BASE = '/api';
+let committees = [];
+let schedule = [];
+let secretariat = [];
+
+async function loadData(){
+  const [committeesRes, scheduleRes, secretariatRes] = await Promise.all([
+    fetch(`${API_BASE}/committees`),
+    fetch(`${API_BASE}/schedule`),
+    fetch(`${API_BASE}/secretariat`),
+  ]);
+  committees = await committeesRes.json();
+  schedule = await scheduleRes.json();
+  secretariat = await secretariatRes.json();
+  renderAll();
+}
+
+function statusClass(s){ return s === "FILLING" ? "status-filling" : s === "CLOSED" ? "status-closed" : ""; }
+
+function passHTML(c){
+  return `
+    <div class="pass-head"><span>WS·MUN PASS // 2026</span><span>NO. ${c.number}</span></div>
+    <div class="stamp ${statusClass(c.status)}">${c.status}</div>
+    <h3>${c.name}</h3>
+    <p class="pass-agenda">${c.agenda}</p>
+    <div class="pass-foot">
+      <div class="pass-foot-meta tabular">
+        <div>LEVEL: ${c.level}</div>
+        <div>SEATS: ${c.size}</div>
+      </div>
+      <div class="barcode" aria-hidden="true">
+        <div style="width:2px;height:100%"></div><div style="width:4px;height:100%"></div>
+        <div style="width:2px;height:100%"></div><div style="width:6px;height:100%"></div>
+        <div style="width:2px;height:100%"></div>
+      </div>
+    </div>`;
+}
+
+function renderPassGrid(el, list){
+  el.innerHTML = list.map(c => `
+    <a href="#" class="card-link" onclick="openCommittee('${c.slug}');return false;">
+      <div class="pass">
+        <div class="halftone" aria-hidden="true"></div>
+        <div class="pass-inner">${passHTML(c)}</div>
+      </div>
+    </a>`).join('');
+}
+
+function personHTML(p){
+  return `<div class="person">
+    <div class="person-role">${p.role}</div>
+    ${p.name ? `<div class="person-name">${p.name}</div>` : `<div class="person-name tba">To be announced</div>`}
+  </div>`;
+}
+
+function renderAll(){
+  renderPassGrid(document.getElementById('pass-grid-home'), committees.slice(0,3));
+  renderPassGrid(document.getElementById('pass-grid-full'), committees);
+
+  document.getElementById('schedule-preview').innerHTML = schedule.map(d => `
+    <div style="margin-bottom:var(--sp-6);">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <strong>${d.day}</strong><span class="tabular" style="font-family:monospace; font-size:0.85rem; color:var(--graphite);">${d.date}</span>
+      </div>
+      <div style="font-size:0.9rem; color:var(--graphite);">${d.items[0].session} — ${d.items[d.items.length-1].session}</div>
+    </div>`).join('');
+
+  document.getElementById('schedule-full').innerHTML = schedule.map(d => `
+    <div class="day-block">
+      <div class="day-head"><h2>${d.day}</h2><span class="day-date tabular">${d.date}</span></div>
+      <div>${d.items.map(i => `
+        <div class="item-row">
+          <div class="item-time tabular">${i.time}</div>
+          <div class="item-session">${i.session}</div>
+        </div>`).join('')}</div>
+    </div>`).join('');
+
+  document.getElementById('secretariat-preview').textContent =
+    "Nine seats, in fixed order of precedence: " + secretariat.slice(0,4).map(s=>s.name||"one seat under vetting").join(", ") + " — and five more.";
+
+  const sg = secretariat.filter(s=>s.tier==='sg');
+  const office = secretariat.filter(s=>s.tier==='office');
+  const usg = secretariat.filter(s=>s.tier==='usg');
+  document.getElementById('secretariat-full').innerHTML = `
+    <div class="people-tier">
+      <div class="people-tier-label">Secretary-General</div>
+      <div class="people-grid">${sg.map(personHTML).join('')}</div>
+    </div>
+    <div class="people-tier">
+      <div class="people-tier-label">Chef de cabinet &amp; director-general</div>
+      <div class="people-grid">${office.map(personHTML).join('')}</div>
+    </div>
+    <div class="people-tier">
+      <div class="people-tier-label">Under-secretaries-general</div>
+      <div class="people-grid">${usg.map(personHTML).join('')}</div>
+    </div>`;
+
+  document.getElementById('eb-full').innerHTML = committees.map(c => `
+    <div class="eb-group">
+      <div class="eb-group-title">${c.name}</div>
+      <div class="people-grid">
+        ${c.eb.map(name => {
+          const seatUnfilled = name.startsWith('Seat under vetting');
+          if (seatUnfilled) return `<div class="person"><div class="person-role">Seat</div><div class="person-name tba">Under vetting</div></div>`;
+          const [n, role] = name.split(' — ');
+          return `<div class="person"><div class="person-role">${role}</div><div class="person-name">${n}</div></div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('resources-guides').innerHTML = committees.map(c => `
+    <div class="doc-row"><div class="doc-num">${c.number}</div><div class="doc-title">${c.name} — study guide</div><div class="doc-meta"><span class="tba">Pending</span></div></div>`).join('');
+  document.getElementById('resources-matrices').innerHTML = committees.map(c => `
+    <div class="doc-row"><div class="doc-num">${c.number}</div><div class="doc-title">${c.name} — portfolio matrix</div><div class="doc-meta"><span class="tba">Pending</span></div></div>`).join('');
+
+  populateCommitteeDropdown();
+}
+
+function openCommittee(slug){
+  const c = committees.find(x => x.slug === slug);
+  if (!c) { go('notfound'); return; }
+  document.getElementById('committee-detail-content').innerHTML = `
+    <div class="wrap">
+      <a href="#" onclick="go('committees');return false;" style="font-size:0.85rem; color:var(--bone-dim);">← Back to the slate</a>
+      <div style="max-width:420px; margin: var(--sp-8) 0 var(--sp-12);">
+        <div class="pass"><div class="halftone" aria-hidden="true"></div><div class="pass-inner">${passHTML(c)}</div></div>
+      </div>
+      <h1 style="font-size:var(--text-h1); margin-bottom:var(--sp-2); max-width:80%;">${c.name}</h1>
+      <div style="color:var(--bone-dim); font-size:0.9rem; margin-bottom:var(--sp-8);">${c.fullName}</div>
+      <p class="measure" style="font-size:var(--text-lead); color:var(--bone-dim); margin-bottom:var(--sp-8);">${c.agenda}</p>
+      <p class="measure" style="margin-bottom:var(--sp-12);">${c.description}</p>
+      <div class="rule" style="margin-bottom:var(--sp-8);"></div>
+      <div class="people-grid" style="margin-bottom:var(--sp-12);">
+        <div class="person" style="border-top:none; padding-top:0;"><div class="person-role">Difficulty</div><div class="person-name" style="font-family:'Inter'; font-size:1rem; font-weight:600;">${c.level}</div></div>
+        <div class="person" style="border-top:none; padding-top:0;"><div class="person-role">Committee size</div><div class="person-name tabular" style="font-family:'Inter'; font-size:1rem; font-weight:600;">${c.size} delegates</div></div>
+      </div>
+      <div class="people-tier-label">Executive board</div>
+      <div class="people-grid" style="margin-bottom:var(--sp-12);">
+        ${c.eb.map(name => {
+          if (name.startsWith('Seat under vetting')) return `<div class="person"><div class="person-role">Seat</div><div class="person-name tba">Under vetting</div></div>`;
+          const [n, role] = name.split(' — ');
+          return `<div class="person"><div class="person-role">${role}</div><div class="person-name">${n}</div></div>`;
+        }).join('')}
+      </div>
+      <div style="margin-bottom:var(--sp-8);"><span class="tba">Country matrix — pending</span> &nbsp; <span class="tba">Study guide — not yet published</span></div>
+      <a href="#" class="btn btn-primary" onclick="go('register');return false;">Register for this committee</a>
+    </div>`;
+  go('committee-detail');
+}
+
+function go(view){
+  document.querySelectorAll('main[data-view]').forEach(m => m.classList.toggle('active', m.dataset.view === view));
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    if (a.dataset.view === view) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+  });
+  document.getElementById('navLinks').classList.remove('open');
+  window.scrollTo(0,0);
+}
+
+document.getElementById('navToggle').addEventListener('click', () => {
+  const links = document.getElementById('navLinks');
+  const open = links.classList.toggle('open');
+  document.getElementById('navToggle').setAttribute('aria-expanded', open);
+});
+
+/* ---------------- Registration form (replaces the old alert() stubs) ---------------- */
+
+function populateCommitteeDropdown(){
+  const select = document.getElementById('reg-committee');
+  if (!select) return;
+  select.innerHTML = '<option value="">Select a committee</option>' +
+    committees.map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+}
+
+function openRegisterModal(tier){
+  document.getElementById('reg-tier').value = tier;
+  document.getElementById('reg-tier-label').textContent =
+    tier === 'delegate' ? 'Delegate registration' :
+    tier === 'delegation' ? 'Delegation registration' : 'Executive board application';
+  document.getElementById('reg-committee-field').style.display = tier === 'delegate' ? 'block' : 'none';
+  document.getElementById('reg-institution-field').style.display = tier === 'delegation' ? 'block' : 'none';
+  document.getElementById('reg-delsize-field').style.display = tier === 'delegation' ? 'block' : 'none';
+  document.getElementById('reg-feedback').textContent = '';
+  document.getElementById('reg-form').reset();
+  document.getElementById('reg-tier').value = tier;
+  document.getElementById('reg-modal').style.display = 'flex';
+}
+
+function closeRegisterModal(){
+  document.getElementById('reg-modal').style.display = 'none';
+}
+
+document.getElementById('reg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const feedback = document.getElementById('reg-feedback');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  const payload = {
+    tier: form.tier.value,
+    fullName: form.fullName.value,
+    email: form.email.value,
+    phone: form.phone.value,
+    committeePreference: form.committeePreference.value || undefined,
+    institution: form.institution.value || undefined,
+    delegationSize: form.delegationSize.value ? Number(form.delegationSize.value) : undefined,
+    notes: form.notes.value || undefined,
+  };
+
+  submitBtn.disabled = true;
+  feedback.style.color = 'var(--bone-dim)';
+  feedback.textContent = 'Submitting…';
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const msg = data.errors ? data.errors.join(' ') : (data.error || 'Something went wrong.');
+      feedback.style.color = 'var(--oxblood)';
+      feedback.textContent = msg;
+      submitBtn.disabled = false;
+      return;
+    }
+
+    feedback.style.color = 'var(--lime)';
+    feedback.textContent = `Registered. Confirmation ID: ${data.registrationId}`;
+    setTimeout(closeRegisterModal, 2500);
+  } catch (err) {
+    feedback.style.color = 'var(--oxblood)';
+    feedback.textContent = 'Network error — please try again.';
+    submitBtn.disabled = false;
+  }
+});
+
+loadData();
+</script>
+
+</body>
+</html>

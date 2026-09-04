@@ -1,0 +1,23 @@
+[
+  {
+    "day": "Day 01",
+    "date": "26 SEPTEMBER 2026",
+    "items": [
+      { "time": "09:00 – 10:00", "session": "Opening ceremony & keynote address" },
+      { "time": "10:15 – 13:00", "session": "Committee session I — roll call & agenda adoption" },
+      { "time": "13:00 – 14:00", "session": "Lunch break" },
+      { "time": "14:00 – 17:30", "session": "Committee session II — general speakers list & working papers" },
+      { "time": "17:45 – 18:30", "session": "Executive board briefing" }
+    ]
+  },
+  {
+    "day": "Day 02",
+    "date": "27 SEPTEMBER 2026",
+    "items": [
+      { "time": "09:30 – 12:30", "session": "Committee session III — draft resolutions & voting blocs" },
+      { "time": "12:30 – 13:30", "session": "Lunch break" },
+      { "time": "13:30 – 16:30", "session": "Committee session IV — final voting & press release" },
+      { "time": "17:00 – 18:30", "session": "Closing ceremony & award presentation" }
+    ]
+  }
+]
